@@ -1,0 +1,6 @@
+#entropy formula 
+import math
+def entropy(q):
+    entropy = -(q * math.log2(q) + (1-q) * math.log2(1-q))
+    print(entropy)
+entropy(6/10)
