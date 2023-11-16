@@ -4,3 +4,9 @@ def entropy(q):
     entropy = -(q * math.log2(q) + (1-q) * math.log2(1-q))
     print(entropy)
 entropy(6/10)
+#2 variables version
+def entropy_two(yes,total):
+    q = yes/total
+    entropy = -(q * math.log2(q) + (1-q) * math.log2(1-q))
+    print(entropy)
+entropy(6,10)
