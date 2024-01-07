@@ -1,0 +1,48 @@
+import pandas as pd
+from googletrans import Translator
+import re
+
+# Function to check if text contains Chinese
+def contains_chinese(text):
+    return bool(re.search('[\u4e00-\u9fff]', text))
+
+# Function to remove English text
+def remove_english(text):
+    return re.sub(r'[a-zA-Z0-9]', '', text)
+
+# Function to convert and format currency
+def convert_currency(value):
+    if '¥' in value or '元' in value:
+        # Remove Chinese currency symbols and convert
+        number = float(re.sub(r'[¥元]', '', value))
+        converted = number * 1.1 / 6.3
+        return '$' + str(round(converted, 2))
+    return value
+
+# Step 1: Import Excel File
+file_path = 'path/to/your/excel/file.xlsx'
+df = pd.read_excel(file_path)
+
+# Step 2: Change Content
+# Initialize Translator
+translator = Translator()
+
+# Translate Text and Change Currency
+for column in df.columns:
+    if df[column].dtype == object:  # Assuming text columns are of object type
+        for index, value in df[column].iteritems():
+            if value is not None:
+                # Convert currency if needed
+                value = convert_currency(str(value))
+
+                # Remove English if Chinese is present, then translate
+                if contains_chinese(value):
+                    chinese_only = remove_english(value)
+                    translated_text = translator.translate(chinese_only, dest='en').text
+                    df.at[index, column] = translated_text
+
+# Step 3: Export/Change File Name
+output_path = 'path/to/your/output/file.xlsx'
+df.to_excel(output_path, index=False)
+
+#test case, compare to original file, see if the translate match/ change content code all works.
