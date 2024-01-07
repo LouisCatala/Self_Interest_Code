@@ -2,17 +2,20 @@ import pandas as pd
 from googletrans import Translator
 import re
 
-# Function to check if text contains Chinese
-def contains_chinese(text):
-    return bool(re.search('[\u4e00-\u9fff]', text))
+# Function to check if text contains English
+def contains_english(text):
+    return bool(re.search('[a-zA-Z]', text))
 
-# Function to remove English text
-def remove_english(text):
-    return re.sub(r'[a-zA-Z0-9]', '', text)
+# Function to check if text is already in dollars
+def is_already_dollar(value):
+    return '$' in value and '元' in value
 
 # Function to convert and format currency
 def convert_currency(value):
-    if '¥' in value or '元' in value:
+    if is_already_dollar(value):
+        # If already in dollars, just remove the 元 character
+        return value.replace('元', '')
+    elif '¥' in value or '元' in value:
         # Remove Chinese currency symbols and convert
         number = float(re.sub(r'[¥元]', '', value))
         converted = number * 1.1 / 6.3
@@ -36,8 +39,8 @@ for column in df.columns:
                 value = convert_currency(str(value))
 
                 # Remove English if Chinese is present, then translate
-                if contains_chinese(value):
-                    chinese_only = remove_english(value)
+                if contains_english(value) and not is_already_dollar(value):
+                    chinese_only = re.sub(r'[a-zA-Z0-9]', '', value)
                     translated_text = translator.translate(chinese_only, dest='en').text
                     df.at[index, column] = translated_text
 
